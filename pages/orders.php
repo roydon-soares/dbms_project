@@ -35,7 +35,7 @@ $ordersResult = $conn->query($query);
         </section>
 
         <!-- Add Order Form (initially hidden) -->
-        <div id="addOrderForm" class="form-popup">
+        <div id="addOrderForm" class="form-popup" style="display:none;">
             <h2>Add New Order</h2>
             <form action="../controllers/orderController.php" method="POST">
                 <label for="employee_id">Employee</label>
@@ -93,6 +93,6 @@ $ordersResult = $conn->query($query);
         </div>
     </div>
 
-    <script src="../public/assets/js/scripts.js"></script>
+    <script src="../public/assets/js/script.js"></script>
 </body>
 </html>
