@@ -28,28 +28,29 @@ $result = $conn->query($query);
             <a href="dashboard.php" class="back-btn">Back to Dashboard</a>
         </header>
 
-        <!-- Add Item Form -->
+        <!-- Add Item Section -->
         <section class="menu-actions">
             <h2>Add New Menu Item</h2>
-            <form action="../controllers/menuController.php" method="POST">
+            <form action="../controllers/menuController.php" method="POST" class="menu-form">
                 <input type="text" name="name" placeholder="Item Name" required>
                 <textarea name="description" placeholder="Description"></textarea>
                 <input type="number" step="0.01" name="price" placeholder="Price" required>
                 <input type="text" name="category" placeholder="Category">
-                <button type="submit" name="addMenuItem" class="submit-btn">Add Item</button>
+                <button type="submit" name="addMenuItem" class="btn-primary">Add Item</button>
             </form>
         </section>
+
         <!-- Edit Item Form (initially hidden) -->
-        <div id="editForm" class="form-popup" style="display:none;">
+        <div id="editForm" class="form-popup">
             <h2>Edit Menu Item</h2>
-            <form action="../controllers/menuController.php" method="POST" id="editFormContent">
+            <form action="../controllers/menuController.php" method="POST" id="editFormContent" class="menu-form">
                 <input type="hidden" name="id" id="editId">
                 <input type="text" name="name" id="editName" placeholder="Item Name" required>
                 <textarea name="description" id="editDescription" placeholder="Description"></textarea>
                 <input type="number" step="0.01" name="price" id="editPrice" placeholder="Price" required>
                 <input type="text" name="category" id="editCategory" placeholder="Category">
-                <button type="submit" name="editMenuItem" class="submit-btn">Save Changes</button>
-                <button type="button" onclick="hideEditForm()" class="cancel-btn">Cancel</button>
+                <button type="submit" name="editMenuItem" class="btn-primary">Save Changes</button>
+                <button type="button" onclick="hideEditForm()" class="btn-secondary">Cancel</button>
             </form>
         </div>
 
@@ -63,11 +64,10 @@ $result = $conn->query($query);
                         <p><strong>Price:</strong> $<?php echo htmlspecialchars($row['price']); ?></p>
                         <p><strong>Category:</strong> <?php echo htmlspecialchars($row['category']); ?></p>
                         <div class="item-actions">
-                        <button onclick="showEditForm(<?php echo $row['id']; ?>, '<?php echo addslashes($row['name']); ?>', '<?php echo addslashes($row['description']); ?>', <?php echo $row['price']; ?>, '<?php echo addslashes($row['category']); ?>')">Edit</button>
-
+                            <button onclick="showEditForm(<?php echo $row['id']; ?>, '<?php echo addslashes($row['name']); ?>', '<?php echo addslashes($row['description']); ?>', <?php echo $row['price']; ?>, '<?php echo addslashes($row['category']); ?>')" class="btn-primary">Edit</button>
                             <form action="../controllers/menuController.php" method="POST" style="display:inline;">
                                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                <button type="submit" name="deleteMenuItem" class="delete-btn">Delete</button>
+                                <button type="submit" name="deleteMenuItem" class="btn-danger">Delete</button>
                             </form>
                         </div>
                     </div>
@@ -78,6 +78,6 @@ $result = $conn->query($query);
         </div>
     </div>
 
-    <script src="../public/assets/js/script.js"></script>
+    <script src="../public/assets/js/menu_items.js"></script>
 </body>
 </html>

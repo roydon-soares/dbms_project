@@ -1,62 +1,194 @@
+/* Resetting basic styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
+    color: #333;
+    line-height: 1.6;
 }
 
+/* Main container for the page */
 .menu-container {
     max-width: 900px;
-    margin: 50px auto;
+    margin: 40px auto;
     padding: 20px;
     background-color: #ffffff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
 
+/* Header styling */
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-bottom: 20px;
     border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
 }
 
+header h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+.back-btn {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.back-btn:hover {
+    color: #0056b3;
+}
+
+/* Add item section */
 .menu-actions {
     margin: 20px 0;
 }
 
-.add-btn, .submit-btn, .cancel-btn, .delete-btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: #ffffff;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.menu-actions h2 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 10px;
 }
 
-.add-btn:hover, .submit-btn:hover, .cancel-btn:hover, .delete-btn:hover {
-    background-color: #0056b3;
+.menu-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-form input[type="text"],
+.menu-form input[type="number"],
+.menu-form textarea {
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.menu-form textarea {
+    resize: vertical;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #218838;
+}
+
+.btn-secondary {
+    padding: 8px 16px;
+    color: #333;
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: #ddd;
+}
+
+.btn-danger {
+    padding: 8px 16px;
+    color: #fff;
+    background-color: #dc3545;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Styling menu list items */
+.menu-list {
+    margin-top: 20px;
 }
 
 .menu-item {
-    border-bottom: 1px solid #ddd;
-    padding: 10px 0;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fafafa;
+}
+
+.menu-item h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.menu-item p {
+    font-size: 14px;
+    margin: 5px 0;
 }
 
 .item-actions {
+    display: flex;
+    gap: 10px;
     margin-top: 10px;
 }
 
+/* No items found message */
+.no-items {
+    text-align: center;
+    color: #777;
+}
+
+/* Edit form popup styling */
 .form-popup {
     display: none;
     position: fixed;
-    left: 50%;
     top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #fff;
+    background-color: #ffffff;
     padding: 20px;
     border: 1px solid #ccc;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     z-index: 1000;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+}
+
+.form-popup h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.form-popup .menu-form input[type="text"],
+.form-popup .menu-form input[type="number"],
+.form-popup .menu-form textarea {
+    margin: 8px 0;
+}
+
+.form-popup .btn-primary,
+.form-popup .btn-secondary {
+    width: 100%;
+    margin: 8px 0;
+}
+
+.form-popup .btn-secondary {
+    color: #333;
+    background-color: #f4f4f4;
 }
