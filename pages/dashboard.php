@@ -46,6 +46,7 @@ $pending_orders = 8; // Replace with actual query result
         <section class="actions">
             <a href="menu_items.php" class="action-btn">Manage Menu Items</a>
             <a href="orders.php" class="action-btn">Manage Orders</a>
+            <a href="register.php" class="action-btn">Register Employees</a> <!-- New Register button -->
         </section>
     </div>
 </body>
