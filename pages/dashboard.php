@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once '../config/db.php';
 
 // Redirect to login page if not logged in
 if (!isset($_SESSION['username'])) {
@@ -7,10 +8,17 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// Sample data for demonstration purposes
-$total_menu_items = 24; // Replace with actual query result
-$total_orders = 120; // Replace with actual query result
-$pending_orders = 8; // Replace with actual query result
+// Fetch total menu items
+$menuQuery = "SELECT COUNT(*) AS total_menu_items FROM menu_items";
+$menuResult = $conn->query($menuQuery);
+$menuData = $menuResult->fetch_assoc();
+$total_menu_items = $menuData['total_menu_items'];
+
+// Fetch total orders
+$orderQuery = "SELECT COUNT(*) AS total_orders FROM orders";
+$orderResult = $conn->query($orderQuery);
+$orderData = $orderResult->fetch_assoc();
+$total_orders = $orderData['total_orders'];
 ?>
 
 <!DOCTYPE html>
@@ -36,10 +44,6 @@ $pending_orders = 8; // Replace with actual query result
             <div class="stat-item">
                 <h2>Total Orders</h2>
                 <p><?php echo $total_orders; ?></p>
-            </div>
-            <div class="stat-item">
-                <h2>Pending Orders</h2>
-                <p><?php echo $pending_orders; ?></p>
             </div>
         </section>
 

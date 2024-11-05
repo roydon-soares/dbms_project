@@ -1,6 +1,28 @@
 <?php
 require_once '../config/db.php';
 
+// Fetch menu items from the database
+function fetchMenuItems($conn) {
+    $query = "SELECT * FROM menu_items";
+    return $conn->query($query);
+}
+
+// Search menu items by name and category
+function searchMenuItems($conn, $searchTerm, $categoryTerm) {
+    $query = "SELECT * FROM menu_items WHERE name LIKE ? AND (? = '' OR category = ?)";
+    $stmt = $conn->prepare($query);
+    $likeSearchTerm = '%' . $searchTerm . '%';
+    $stmt->bind_param('sss', $likeSearchTerm, $categoryTerm, $categoryTerm);
+    $stmt->execute();
+    return $stmt->get_result();
+}
+
+// Fetch distinct categories for dropdown
+function fetchCategories($conn) {
+    $query = "SELECT DISTINCT category FROM menu_items";
+    return $conn->query($query);
+}
+
 // Add a new menu item
 if (isset($_POST['addMenuItem'])) {
     $name = $_POST['name'];

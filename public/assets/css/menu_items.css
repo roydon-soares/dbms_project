@@ -1,194 +1,181 @@
-/* Resetting basic styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* menu_items.css */
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background: url('../assets/images/mfc.jpeg') no-repeat center center fixed; /* Adjusted the path */
+    background-size: cover;
     color: #333;
-    line-height: 1.6;
 }
 
-/* Main container for the page */
 .menu-container {
-    max-width: 900px;
-    margin: 40px auto;
+    max-width: 1200px;
+    margin: auto;
     padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent background to make text readable */
     border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Header styling */
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #ddd;
-}
-
-header h1 {
-    font-size: 24px;
-    color: #333;
+    margin-bottom: 20px;
 }
 
 .back-btn {
     text-decoration: none;
-    color: #007bff;
-    font-weight: bold;
+    color: #fff;
+    background: #007BFF;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
 .back-btn:hover {
-    color: #0056b3;
+    background-color: #0056b3;
 }
 
-/* Add item section */
-.menu-actions {
-    margin: 20px 0;
+.search-bar {
+    margin-bottom: 20px;
 }
 
-.menu-actions h2 {
-    font-size: 20px;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-.menu-form {
-    display: flex;
-    flex-direction: column;
-}
-
-.menu-form input[type="text"],
-.menu-form input[type="number"],
-.menu-form textarea {
+.search-bar input[type="text"],
+.search-bar select {
+    width: 40%;
     padding: 10px;
-    margin: 8px 0;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 5px;
+    margin-right: 10px;
+    transition: border-color 0.3s ease;
+}
+
+.search-bar input[type="text"]:focus,
+.search-bar select:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+.search-bar button {
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-bar button:hover {
+    background-color: #0056b3;
+}
+
+.menu-actions {
+    margin-bottom: 20px;
+}
+
+.menu-form input,
+.menu-form textarea,
+.menu-form button {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.menu-form input:focus,
+.menu-form textarea:focus {
+    border-color: #007BFF;
+    outline: none;
 }
 
 .menu-form textarea {
     resize: vertical;
+    min-height: 80px;
+    max-height: 150px;
 }
 
 .btn-primary {
-    padding: 10px 20px;
+    background: #007BFF;
     color: #fff;
-    background-color: #28a745;
     border: none;
-    border-radius: 4px;
+    padding: 10px 20px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease;
 }
 
 .btn-primary:hover {
-    background-color: #218838;
-}
-
-.btn-secondary {
-    padding: 8px 16px;
-    color: #333;
-    background-color: #f4f4f4;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.btn-secondary:hover {
-    background-color: #ddd;
+    background-color: #0056b3;
 }
 
 .btn-danger {
-    padding: 8px 16px;
+    background: #DC3545;
     color: #fff;
-    background-color: #dc3545;
     border: none;
-    border-radius: 4px;
+    padding: 10px 20px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease;
 }
 
 .btn-danger:hover {
     background-color: #c82333;
 }
 
-/* Styling menu list items */
-.menu-list {
-    margin-top: 20px;
-}
-
-.menu-item {
-    padding: 15px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #fafafa;
-}
-
-.menu-item h3 {
-    font-size: 18px;
-    margin-bottom: 5px;
-    color: #333;
-}
-
-.menu-item p {
-    font-size: 14px;
-    margin: 5px 0;
-}
-
-.item-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-/* No items found message */
-.no-items {
-    text-align: center;
-    color: #777;
-}
-
-/* Edit form popup styling */
 .form-popup {
-    display: none;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #ffffff;
-    padding: 20px;
-    border: 1px solid #ccc;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     z-index: 1000;
-    border-radius: 8px;
     width: 90%;
-    max-width: 400px;
+    max-width: 600px;
 }
 
-.form-popup h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
-    color: #333;
+.menu-table {
+    margin-top: 20px;
 }
 
-.form-popup .menu-form input[type="text"],
-.form-popup .menu-form input[type="number"],
-.form-popup .menu-form textarea {
-    margin: 8px 0;
-}
-
-.form-popup .btn-primary,
-.form-popup .btn-secondary {
+table {
     width: 100%;
-    margin: 8px 0;
+    border-collapse: collapse;
+    margin-bottom: 20px;
 }
 
-.form-popup .btn-secondary {
-    color: #333;
-    background-color: #f4f4f4;
+table th,
+table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+table td {
+    vertical-align: top;
+}
+
+.no-items {
+    text-align: center;
+    color: #777;
+    padding: 20px;
 }
