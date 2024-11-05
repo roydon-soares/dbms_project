@@ -48,8 +48,38 @@ $ordersResult = $conn->query($query);
                     }
                     ?>
                 </select>
+                
+                <label for="menu_item">Menu Item</label>
+                <select name="menu_item_id" required>
+                    <option value="">Select Menu Item</option>
+                    <?php
+                    // Fetch menu items categorized
+                    $categoryQuery = "SELECT id, name, category FROM menu_items ORDER BY category";
+                    $categoryResult = $conn->query($categoryQuery);
+                    $currentCategory = '';
+                    while ($item = $categoryResult->fetch_assoc()) {
+                        // Add category heading if it's a new category
+                        if ($item['category'] !== $currentCategory) {
+                            if ($currentCategory !== '') {
+                                echo '</optgroup>'; // Close previous optgroup
+                            }
+                            $currentCategory = $item['category'];
+                            echo "<optgroup label='" . htmlspecialchars($currentCategory) . "'>";
+                        }
+                        echo "<option value='" . $item['id'] . "'>" . htmlspecialchars($item['name']) . "</option>";
+                    }
+                    if ($currentCategory !== '') {
+                        echo '</optgroup>'; // Close the last optgroup
+                    }
+                    ?>
+                </select>
+                
+                <label for="quantity">Quantity</label>
+                <input type="number" name="quantity" min="1" placeholder="Quantity" required>
+                
                 <label for="total_amount">Total Amount</label>
                 <input type="number" step="0.01" name="total_amount" placeholder="Total Amount" required>
+                
                 <button type="submit" name="addOrder" class="submit-btn">Add Order</button>
                 <button type="button" onclick="hideAddOrderForm()" class="cancel-btn">Cancel</button>
             </form>
