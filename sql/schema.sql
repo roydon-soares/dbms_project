@@ -25,8 +25,8 @@ CREATE TABLE employees (
 -- 3. Customers Table
 CREATE TABLE customers (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR(100) NULL,
+    email VARCHAR(100) NULL,
     phone VARCHAR(15),
     address TEXT
 );
@@ -52,3 +52,15 @@ CREATE TABLE order_items (
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
 );
+
+
+
+////
+INSERT INTO employees (name, role, salary, hire_date) VALUES 
+('Alice Johnson', 'Manager', 65000.00, '2023-01-15'), 
+('Bob Smith', 'Chef', 50000.00, '2023-02-10'),
+ ('Charlie Brown', 'Waiter', 30000.00, '2023-03-05'), 
+ ('Diana Prince', 'Host', 35000.00, '2023-04-12'),
+  ('Evan Stone', 'Dishwasher', 25000.00, '2023-05-20'),
+   ('Fay Carter', 'Cook', 40000.00, '2023-06-25')
+    ('George Banks', 'Delivery', 28000.00, '2023-07-30');

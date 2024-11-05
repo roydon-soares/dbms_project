@@ -145,39 +145,54 @@ $ordersResult = $conn->query($query);
             </form>
         </div>
 
-        <!-- Orders List -->
+        <!-- Orders List in Tabular Form -->
         <div class="orders-list">
             <?php if ($ordersResult->num_rows > 0): ?>
-                <?php while ($order = $ordersResult->fetch_assoc()): ?>
-                    <div class="order-item">
-                        <h3>Order #<?php echo $order['id']; ?></h3>
-                        <p><strong>Customer:</strong> <?php echo htmlspecialchars($order['customer_name']); ?></p>
-                        <p><strong>Employee:</strong> <?php echo htmlspecialchars($order['employee_name']); ?></p>
-                        <p><strong>Date:</strong> <?php echo htmlspecialchars($order['order_date']); ?></p>
-                        <p><strong>Total:</strong> $<?php echo htmlspecialchars($order['total_amount']); ?></p>
-
-                        <!-- Button to show items for each order -->
-                        <button onclick="toggleOrderItems(<?php echo $order['id']; ?>)">View Items</button>
-
-                        <!-- Order Items (initially hidden) -->
-                        <div id="orderItems<?php echo $order['id']; ?>" class="order-items" style="display: none;">
-                            <?php
-                            $itemQuery = "SELECT menu_items.name, order_items.quantity, order_items.price 
-                                          FROM order_items 
-                                          JOIN menu_items ON order_items.menu_item_id = menu_items.id 
-                                          WHERE order_items.order_id = " . $order['id'];
-                            $itemResult = $conn->query($itemQuery);
-                            if ($itemResult->num_rows > 0) {
-                                while ($item = $itemResult->fetch_assoc()) {
-                                    echo "<p>" . htmlspecialchars($item['name']) . " - " . htmlspecialchars($item['quantity']) . " x $" . htmlspecialchars($item['price']) . "</p>";
-                                }
-                            } else {
-                                echo "<p>No items in this order.</p>";
-                            }
-                            ?>
-                        </div>
-                    </div>
-                <?php endwhile; ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Employee</th>
+                            <th>Date</th>
+                            <th>Total Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($order = $ordersResult->fetch_assoc()): ?>
+                            <tr>
+                                <td><?php echo $order['id']; ?></td>
+                                <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
+                                <td><?php echo htmlspecialchars($order['employee_name']); ?></td>
+                                <td><?php echo htmlspecialchars($order['order_date']); ?></td>
+                                <td>$<?php echo htmlspecialchars($order['total_amount']); ?></td>
+                                <td>
+                                    <!-- Button to show items for each order -->
+                                    <button onclick="toggleOrderItems(<?php echo $order['id']; ?>)">View Items</button>
+                                </td>
+                            </tr>
+                            <tr id="orderItems<?php echo $order['id']; ?>" class="order-items" style="display: none;">
+                                <td colspan="6">
+                                    <?php
+                                    $itemQuery = "SELECT menu_items.name, order_items.quantity, order_items.price 
+                                                  FROM order_items 
+                                                  JOIN menu_items ON order_items.menu_item_id = menu_items.id 
+                                                  WHERE order_items.order_id = " . $order['id'];
+                                    $itemResult = $conn->query($itemQuery);
+                                    if ($itemResult->num_rows > 0) {
+                                        while ($item = $itemResult->fetch_assoc()) {
+                                            echo "<p>" . htmlspecialchars($item['name']) . " - " . htmlspecialchars($item['quantity']) . " x $" . htmlspecialchars($item['price']) . "</p>";
+                                        }
+                                    } else {
+                                        echo "<p>No items in this order.</p>";
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
             <?php else: ?>
                 <p class="no-orders">No orders found. Add new orders above.</p>
             <?php endif; ?>
