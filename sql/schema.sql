@@ -22,16 +22,27 @@ CREATE TABLE employees (
     hire_date DATE
 );
 
--- 3. Orders Table
+-- 3. Customers Table
+CREATE TABLE customers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    phone VARCHAR(15),
+    address TEXT
+);
+
+-- 4. Orders Table
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
     employee_id INT,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     total_amount DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
     FOREIGN KEY (employee_id) REFERENCES employees(id)
 );
 
--- 4. Order Items Table (Junction Table for Orders and Menu Items)
+-- 5. Order Items Table (Junction Table for Orders and Menu Items)
 CREATE TABLE order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT,
@@ -39,6 +50,5 @@ CREATE TABLE order_items (
     quantity INT NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (menu_item_id) REFERENCES menu_items(id),
-    UNIQUE(order_id, menu_item_id)  -- Ensures each menu item appears only once per order
+    FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
 );

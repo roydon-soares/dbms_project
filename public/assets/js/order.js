@@ -1,15 +1,15 @@
 function showAddOrderForm() {
-    document.getElementById("addOrderForm").style.display = "block";
+    document.getElementById('addOrderForm').style.display = 'block';
 }
 
 function hideAddOrderForm() {
-    document.getElementById("addOrderForm").style.display = "none";
+    document.getElementById('addOrderForm').style.display = 'none';
 }
 
 function addOrderItem() {
-    var container = document.getElementById("orderItemsContainer");
-    var newItem = document.createElement("div");
-    newItem.className = "order-item";
+    var container = document.getElementById('orderItemsContainer');
+    var newItem = document.createElement('div');
+    newItem.className = 'order-item';
     newItem.innerHTML = `
         <select name="menu_item_id[]" required>
             <option value="">Select Menu Item</option>
@@ -38,10 +38,11 @@ function addOrderItem() {
 }
 
 function toggleOrderItems(orderId) {
-    var itemsDiv = document.getElementById("orderItems" + orderId);
-    if (itemsDiv.style.display === "none") {
-        itemsDiv.style.display = "block";
+    var itemsDiv = document.getElementById('orderItems' + orderId);
+    if (itemsDiv.style.display === 'none') {
+        itemsDiv.style.display = 'block';
     } else {
-        itemsDiv.style.display = "none";
+        itemsDiv.style.display = 'none';
     }
 }
+
