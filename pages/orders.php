@@ -9,9 +9,10 @@ if (!isset($_SESSION['username'])) {
 }
 
 // Fetch orders and order items from the database
-$query = "SELECT orders.id, employees.name AS employee_name, orders.order_date, orders.total_amount 
+$query = "SELECT orders.id, employees.name AS employee_name, customers.name AS customer_name, orders.order_date, orders.total_amount 
           FROM orders 
-          LEFT JOIN employees ON orders.employee_id = employees.id";
+          LEFT JOIN employees ON orders.employee_id = employees.id
+          LEFT JOIN customers ON orders.customer_id = customers.id";
 $ordersResult = $conn->query($query);
 ?>
 
@@ -22,6 +23,61 @@ $ordersResult = $conn->query($query);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Orders</title>
     <link rel="stylesheet" href="../public/assets/css/orders.css">
+    <script>
+        function showAddOrderForm() {
+            document.getElementById("addOrderForm").style.display = "block";
+        }
+
+        function hideAddOrderForm() {
+            document.getElementById("addOrderForm").style.display = "none";
+        }
+
+        function addOrderItem() {
+            var container = document.getElementById("orderItemsContainer");
+            var newItem = document.createElement("div");
+            newItem.className = "order-item";
+            newItem.innerHTML = `
+                <select name="menu_item_id[]" required>
+                    <option value="">Select Menu Item</option>
+                    ${getMenuItems()}
+                </select>
+                <input type="number" name="quantity[]" min="1" placeholder="Quantity" required>
+            `;
+            container.appendChild(newItem);
+        }
+
+        function getMenuItems() {
+            var menuItems = '';
+            <?php
+            $categoryQuery = "SELECT id, name, category FROM menu_items ORDER BY category";
+            $categoryResult = $conn->query($categoryQuery);
+            $currentCategory = '';
+            while ($item = $categoryResult->fetch_assoc()) {
+                if ($item['category'] !== $currentCategory) {
+                    if ($currentCategory !== '') {
+                        echo 'menuItems += "</optgroup>";'; // Close previous optgroup
+                    }
+                    $currentCategory = $item['category'];
+                    echo 'menuItems += "<optgroup label=\'' . htmlspecialchars($currentCategory) . '\'>";';
+                }
+                echo 'menuItems += "<option value=\'' . $item['id'] . '\'>' . htmlspecialchars($item['name']) . '</option>";';
+            }
+            if ($currentCategory !== '') {
+                echo 'menuItems += "</optgroup>";'; // Close the last optgroup
+            }
+            ?>
+            return menuItems;
+        }
+
+        function toggleOrderItems(orderId) {
+            var itemsDiv = document.getElementById("orderItems" + orderId);
+            if (itemsDiv.style.display === "none") {
+                itemsDiv.style.display = "block";
+            } else {
+                itemsDiv.style.display = "none";
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="orders-container">
@@ -38,6 +94,9 @@ $ordersResult = $conn->query($query);
         <div id="addOrderForm" class="form-popup" style="display:none;">
             <h2>Add New Order</h2>
             <form action="../controllers/orderController.php" method="POST">
+                <label for="customer_name">Customer Name</label>
+                <input type="text" name="customer_name" placeholder="Customer Name" required>
+                
                 <label for="employee_id">Employee</label>
                 <select name="employee_id" required>
                     <?php
@@ -48,37 +107,38 @@ $ordersResult = $conn->query($query);
                     }
                     ?>
                 </select>
-                
-                <label for="menu_item">Menu Item</label>
-                <select name="menu_item_id" required>
-                    <option value="">Select Menu Item</option>
-                    <?php
-                    // Fetch menu items categorized
-                    $categoryQuery = "SELECT id, name, category FROM menu_items ORDER BY category";
-                    $categoryResult = $conn->query($categoryQuery);
-                    $currentCategory = '';
-                    while ($item = $categoryResult->fetch_assoc()) {
-                        // Add category heading if it's a new category
-                        if ($item['category'] !== $currentCategory) {
-                            if ($currentCategory !== '') {
-                                echo '</optgroup>'; // Close previous optgroup
+
+                <div id="orderItemsContainer">
+                    <label>Menu Items</label>
+                    <div class="order-item">
+                        <select name="menu_item_id[]" required>
+                            <option value="">Select Menu Item</option>
+                            <?php
+                            // Fetch menu items categorized
+                            $categoryQuery = "SELECT id, name, category FROM menu_items ORDER BY category";
+                            $categoryResult = $conn->query($categoryQuery);
+                            $currentCategory = '';
+                            while ($item = $categoryResult->fetch_assoc()) {
+                                // Add category heading if it's a new category
+                                if ($item['category'] !== $currentCategory) {
+                                    if ($currentCategory !== '') {
+                                        echo '</optgroup>'; // Close previous optgroup
+                                    }
+                                    $currentCategory = $item['category'];
+                                    echo "<optgroup label='" . htmlspecialchars($currentCategory) . "'>";
+                                }
+                                echo "<option value='" . $item['id'] . "'>" . htmlspecialchars($item['name']) . "</option>";
                             }
-                            $currentCategory = $item['category'];
-                            echo "<optgroup label='" . htmlspecialchars($currentCategory) . "'>";
-                        }
-                        echo "<option value='" . $item['id'] . "'>" . htmlspecialchars($item['name']) . "</option>";
-                    }
-                    if ($currentCategory !== '') {
-                        echo '</optgroup>'; // Close the last optgroup
-                    }
-                    ?>
-                </select>
+                            if ($currentCategory !== '') {
+                                echo '</optgroup>'; // Close the last optgroup
+                            }
+                            ?>
+                        </select>
+                        <input type="number" name="quantity[]" min="1" placeholder="Quantity" required>
+                    </div>
+                </div>
                 
-                <label for="quantity">Quantity</label>
-                <input type="number" name="quantity" min="1" placeholder="Quantity" required>
-                
-                <label for="total_amount">Total Amount</label>
-                <input type="number" step="0.01" name="total_amount" placeholder="Total Amount" required>
+                <button type="button" onclick="addOrderItem()" class="add-item-btn">Add Another Item</button>
                 
                 <button type="submit" name="addOrder" class="submit-btn">Add Order</button>
                 <button type="button" onclick="hideAddOrderForm()" class="cancel-btn">Cancel</button>
@@ -91,6 +151,7 @@ $ordersResult = $conn->query($query);
                 <?php while ($order = $ordersResult->fetch_assoc()): ?>
                     <div class="order-item">
                         <h3>Order #<?php echo $order['id']; ?></h3>
+                        <p><strong>Customer:</strong> <?php echo htmlspecialchars($order['customer_name']); ?></p>
                         <p><strong>Employee:</strong> <?php echo htmlspecialchars($order['employee_name']); ?></p>
                         <p><strong>Date:</strong> <?php echo htmlspecialchars($order['order_date']); ?></p>
                         <p><strong>Total:</strong> $<?php echo htmlspecialchars($order['total_amount']); ?></p>
@@ -122,7 +183,5 @@ $ordersResult = $conn->query($query);
             <?php endif; ?>
         </div>
     </div>
-
-    <script src="../public/assets/js/script.js"></script>
 </body>
 </html>
