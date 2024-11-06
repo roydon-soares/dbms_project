@@ -1,48 +1,52 @@
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("DOM fully loaded and parsed");
+});
+
 function showAddOrderForm() {
-    document.getElementById('addOrderForm').style.display = 'block';
+    document.getElementById("addOrderForm").style.display = "block";
 }
 
 function hideAddOrderForm() {
-    document.getElementById('addOrderForm').style.display = 'none';
+    document.getElementById("addOrderForm").style.display = "none";
 }
 
 function addOrderItem() {
-    var container = document.getElementById('orderItemsContainer');
-    var newItem = document.createElement('div');
-    newItem.className = 'order-item';
+    var container = document.getElementById("orderItemsContainer");
+    var newItem = document.createElement("div");
+    newItem.className = "order-item";
     newItem.innerHTML = `
         <select name="menu_item_id[]" required>
             <option value="">Select Menu Item</option>
-            <?php
-            $categoryQuery = "SELECT id, name, category FROM menu_items ORDER BY category";
-            $categoryResult->data_seek(0); // Reset the result pointer to the beginning
-            $currentCategory = '';
-            while ($item = $categoryResult->fetch_assoc()) {
-                if ($item['category'] !== $currentCategory) {
-                    if ($currentCategory !== '') {
-                        echo '</optgroup>';
-                    }
-                    $currentCategory = $item['category'];
-                    echo "<optgroup label='" . htmlspecialchars($currentCategory) . "'>";
-                }
-                echo "<option value='" . $item['id'] . "'>" . htmlspecialchars($item['name']) . "</option>";
-            }
-            if ($currentCategory !== '') {
-                echo '</optgroup>';
-            }
-            ?>
+            ${document.getElementById('menuItemsOptions').innerHTML}
         </select>
         <input type="number" name="quantity[]" min="1" placeholder="Quantity" required>
     `;
     container.appendChild(newItem);
 }
 
-function toggleOrderItems(orderId) {
-    var itemsDiv = document.getElementById('orderItems' + orderId);
-    if (itemsDiv.style.display === 'none') {
-        itemsDiv.style.display = 'block';
-    } else {
-        itemsDiv.style.display = 'none';
-    }
+function showUpdateOrderForm(orderId) {
+    var orderRow = document.querySelector(`tr[data-order-id='${orderId}']`);
+    var customerName = orderRow.querySelector('.customer-name').textContent;
+    var employeeId = orderRow.querySelector('.employee-id').dataset.employeeId;
+    var totalAmount = orderRow.querySelector('.total-amount').textContent;
+
+    document.getElementById('updateOrderId').value = orderId;
+    document.getElementById('updateCustomerName').value = customerName;
+    document.getElementById('updateEmployeeId').value = employeeId;
+    document.getElementById('updateTotalAmount').value = totalAmount;
+
+    document.getElementById('updateOrderForm').style.display = 'block';
 }
 
+function hideUpdateOrderForm() {
+    document.getElementById('updateOrderForm').style.display = 'none';
+}
+
+function toggleOrderItems(orderId) {
+    var itemsDiv = document.getElementById("orderItems" + orderId);
+    if (itemsDiv.style.display === "none") {
+        itemsDiv.style.display = "block";
+    } else {
+        itemsDiv.style.display = "none";
+    }
+}

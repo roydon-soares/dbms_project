@@ -79,4 +79,59 @@ if (isset($_POST['addOrder'])) {
     header("Location: ../pages/orders.php");
     exit();
 }
+
+if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['order_id'])) {
+    $orderId = $_GET['order_id'];
+    
+    // Delete the order items first (to maintain referential integrity)
+    $deleteItemsQuery = "DELETE FROM order_items WHERE order_id = ?";
+    $stmt = $conn->prepare($deleteItemsQuery);
+    $stmt->bind_param("i", $orderId);
+    $stmt->execute();
+    
+    // Now, delete the order itself
+    $deleteOrderQuery = "DELETE FROM orders WHERE id = ?";
+    $stmt = $conn->prepare($deleteOrderQuery);
+    $stmt->bind_param("i", $orderId);
+    if ($stmt->execute()) {
+        header("Location: orders.php");  // Redirect to orders page after successful deletion
+        exit();
+    } else {
+        echo "Error deleting the order.";
+    }
+}
+
+if (isset($_POST['updateOrder'])) {
+    $orderId = $_POST['order_id'];
+    $customerName = $_POST['customer_name'];
+    $employeeId = $_POST['employee_id'];
+    $menuItemIds = $_POST['menu_item_id'];
+    $quantities = $_POST['quantity'];
+
+    // Update the order details
+    $updateOrderQuery = "UPDATE orders SET customer_id = ?, employee_id = ? WHERE id = ?";
+    $stmt = $conn->prepare($updateOrderQuery);
+    $stmt->bind_param("iii", $customerId, $employeeId, $orderId);
+    $stmt->execute();
+
+    // Update order items
+    // First, delete old items
+    $deleteItemsQuery = "DELETE FROM order_items WHERE order_id = ?";
+    $stmt = $conn->prepare($deleteItemsQuery);
+    $stmt->bind_param("i", $orderId);
+    $stmt->execute();
+
+    // Insert updated items
+    foreach ($menuItemIds as $index => $menuItemId) {
+        $quantity = $quantities[$index];
+        $insertItemQuery = "INSERT INTO order_items (order_id, menu_item_id, quantity) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($insertItemQuery);
+        $stmt->bind_param("iii", $orderId, $menuItemId, $quantity);
+        $stmt->execute();
+    }
+
+    // Redirect to orders page after successful update
+    header("Location: ../pages/orders.php");
+    exit();
+}
 ?>

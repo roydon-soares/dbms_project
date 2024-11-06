@@ -32,6 +32,35 @@ $ordersResult = $conn->query($query);
             document.getElementById("addOrderForm").style.display = "none";
         }
 
+        function showUpdateOrderForm(orderId, customerName, employeeId, menuItems) {
+            document.getElementById("updateOrderForm").style.display = "block";
+            document.getElementById("updateOrderId").value = orderId;
+            document.getElementById("updateCustomerName").value = customerName;
+            document.getElementById("updateEmployeeId").value = employeeId;
+
+            // Clear existing menu items
+            const container = document.getElementById("updateOrderItemsContainer");
+            container.innerHTML = '';
+
+            // Add menu items
+            menuItems.forEach(item => {
+                const newItem = document.createElement("div");
+                newItem.className = "order-item";
+                newItem.innerHTML = `
+                    <select name="menu_item_id[]" required>
+                        <option value="">Select Menu Item</option>
+                        ${getMenuItems(item.menu_item_id)}
+                    </select>
+                    <input type="number" name="quantity[]" min="1" value="${item.quantity}" required>
+                `;
+                container.appendChild(newItem);
+            });
+        }
+
+        function hideUpdateOrderForm() {
+            document.getElementById("updateOrderForm").style.display = "none";
+        }
+
         function addOrderItem() {
             var container = document.getElementById("orderItemsContainer");
             var newItem = document.createElement("div");
@@ -46,7 +75,7 @@ $ordersResult = $conn->query($query);
             container.appendChild(newItem);
         }
 
-        function getMenuItems() {
+        function getMenuItems(selectedItemId = null) {
             var menuItems = '';
             <?php
             $categoryQuery = "SELECT id, name, category FROM menu_items ORDER BY category";
@@ -60,7 +89,7 @@ $ordersResult = $conn->query($query);
                     $currentCategory = $item['category'];
                     echo 'menuItems += "<optgroup label=\'' . htmlspecialchars($currentCategory) . '\'>";';
                 }
-                echo 'menuItems += "<option value=\'' . $item['id'] . '\'>' . htmlspecialchars($item['name']) . '</option>";';
+                echo 'menuItems += "<option value=\'' . $item['id'] . '\' ' . ($item['id'] == ' + selectedItemId + ' ? "selected" : "") . '>' . htmlspecialchars($item['name']) . '</option>";';
             }
             if ($currentCategory !== '') {
                 echo 'menuItems += "</optgroup>";'; // Close the last optgroup
@@ -145,11 +174,16 @@ $ordersResult = $conn->query($query);
             </form>
         </div>
 
+        <!-- Update Order Form (initially hidden) -->
+        <div id="updateOrderForm" class="form-popup" style="display:none;"> <h2>Update Order</h2> <form id="updateOrderFormInner" action="../controllers/orderController.php" method="POST"> <input type="hidden" name="order_id" id="updateOrderId" value=""> <label for="update_customer_name">Customer Name</label> <input type="text" name="customer_name" id="updateCustomerName" placeholder="Customer Name" required> <label for="update_employee_id">Employee</label> <select name="employee_id" id="updateEmployeeId" required> <?php $employeeQuery = "SELECT id, name FROM employees"; $employeeResult = $conn->query($employeeQuery); while ($employee = $employeeResult->fetch_assoc()) { echo "<option value='" . $employee['id'] . "'>" . htmlspecialchars($employee['name']) . "</option>"; } ?> </select> <label for="update_total_amount">Total Amount</label> <input type="number" step="0.01" name="total_amount" id="updateTotalAmount" placeholder="Total Amount" required> <button type="submit" name="updateOrder" class="submit-btn">Update Order</button> <button type="button" onclick="hideUpdateOrderForm()" class="cancel-btn">Cancel</button> </form> </div>
+        
+
         <!-- Orders List in Tabular Form -->
         <div class="orders-list">
             <?php if ($ordersResult->num_rows > 0): ?>
                 <table>
                     <thead>
+
                         <tr>
                             <th>Order ID</th>
                             <th>Customer</th>
@@ -168,9 +202,18 @@ $ordersResult = $conn->query($query);
                                 <td><?php echo htmlspecialchars($order['order_date']); ?></td>
                                 <td>$<?php echo htmlspecialchars($order['total_amount']); ?></td>
                                 <td>
-                                    <!-- Button to show items for each order -->
-                                    <button onclick="toggleOrderItems(<?php echo $order['id']; ?>)">View Items</button>
-                                </td>
+                                    
+                                
+    <!-- Button to show items for each order -->
+    <button onclick="toggleOrderItems(<?php echo $order['id']; ?>)">View Items</button>
+    
+    <!-- Update Order Button -->
+   <!-- Update Order Button --> <button onclick="showUpdateOrderForm(<?php echo $order['id']; ?>)">Update</button>
+    
+    <!-- Delete Order Button -->
+    <a href="../controllers/orderController.php?action=delete&order_id=<?php echo $order['id']; ?>" class="delete-btn" onclick="return confirm('Are you sure you want to delete this order?')">Delete</a>
+</td>
+
                             </tr>
                             <tr id="orderItems<?php echo $order['id']; ?>" class="order-items" style="display: none;">
                                 <td colspan="6">
