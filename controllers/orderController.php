@@ -94,7 +94,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['order_
     $stmt = $conn->prepare($deleteOrderQuery);
     $stmt->bind_param("i", $orderId);
     if ($stmt->execute()) {
-        header("Location: orders.php");  // Redirect to orders page after successful deletion
+        header("Location: ../pages/orders.php");  // Redirect to orders page after successful deletion
         exit();
     } else {
         echo "Error deleting the order.";

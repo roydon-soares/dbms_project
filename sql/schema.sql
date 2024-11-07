@@ -53,14 +53,25 @@ CREATE TABLE order_items (
     FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
 );
 
-
-
-////
+-- Dummy records
 INSERT INTO employees (name, role, salary, hire_date) VALUES 
 ('Alice Johnson', 'Manager', 65000.00, '2023-01-15'), 
-('Bob Smith', 'Chef', 50000.00, '2023-02-10'),
- ('Charlie Brown', 'Waiter', 30000.00, '2023-03-05'), 
- ('Diana Prince', 'Host', 35000.00, '2023-04-12'),
-  ('Evan Stone', 'Dishwasher', 25000.00, '2023-05-20'),
-   ('Fay Carter', 'Cook', 40000.00, '2023-06-25')
-    ('George Banks', 'Delivery', 28000.00, '2023-07-30');
+('Bob Smith', 'Chef', 50000.00, '2023-02-10'), 
+('Charlie Brown', 'Waiter', 30000.00, '2023-03-05'), 
+('Diana Prince', 'Host', 35000.00, '2023-04-12'), 
+('Evan Stone', 'Dishwasher', 25000.00, '2023-05-20'), 
+('Fay Carter', 'Cook', 40000.00, '2023-06-25'), 
+('George Banks', 'Delivery', 28000.00, '2023-07-30');
+
+
+INSERT INTO menu_items (name, description, price, category) VALUES
+('Goan Fish Curry', 'A spicy and tangy curry made with fish, coconut, and raw mango', 12.99, 'Main Course'),
+('Chicken Cafreal', 'Spicy green chicken marinated with herbs and spices', 10.99, 'Main Course'),
+('Pork Vindaloo', 'A fiery curry with pork, vinegar, and spices', 13.99, 'Main Course'),
+('Chicken Xacuti', 'A rich curry made with chicken, poppy seeds, and Kashmiri red chilies', 11.99, 'Main Course'),
+('Shark Ambot Tik', 'A sour and spicy dish made with shark, red chilies, and kokum', 14.99, 'Main Course'),
+('Sorpotel', 'A spicy dish made with pork or beef liver, vinegar, and spices', 12.49, 'Main Course'),
+('Bebinca', 'A sweet layered dessert made with coconut milk and flour', 4.49, 'Dessert'),
+('Tambdi Bhaji', 'A spicy vegetable dish made with drumstick leaves', 7.99, 'Vegetarian'),
+('Sol Kadhi', 'A refreshing drink made with coconut milk and kokum', 3.99, 'Beverage'),
+('Kokum Juice', 'A tangy and sweet drink made with kokum and jaggery', 2.99, 'Beverage');
