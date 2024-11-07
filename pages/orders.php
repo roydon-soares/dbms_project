@@ -175,8 +175,137 @@ $ordersResult = $conn->query($query);
         </div>
 
         <!-- Update Order Form (initially hidden) -->
-        <div id="updateOrderForm" class="form-popup" style="display:none;"> <h2>Update Order</h2> <form id="updateOrderFormInner" action="../controllers/orderController.php" method="POST"> <input type="hidden" name="order_id" id="updateOrderId" value=""> <label for="update_customer_name">Customer Name</label> <input type="text" name="customer_name" id="updateCustomerName" placeholder="Customer Name" required> <label for="update_employee_id">Employee</label> <select name="employee_id" id="updateEmployeeId" required> <?php $employeeQuery = "SELECT id, name FROM employees"; $employeeResult = $conn->query($employeeQuery); while ($employee = $employeeResult->fetch_assoc()) { echo "<option value='" . $employee['id'] . "'>" . htmlspecialchars($employee['name']) . "</option>"; } ?> </select> <label for="update_total_amount">Total Amount</label> <input type="number" step="0.01" name="total_amount" id="updateTotalAmount" placeholder="Total Amount" required> <button type="submit" name="updateOrder" class="submit-btn">Update Order</button> <button type="button" onclick="hideUpdateOrderForm()" class="cancel-btn">Cancel</button> </form> </div>
         
+        <!-- Update Order Form -->
+<div id="updateOrderForm" class="form-popup" style="display:none;">
+    <h2>Update Order</h2>
+    <form id="updateOrderFormInner" action="../controllers/orderController.php" method="POST">
+        <input type="hidden" name="order_id" id="updateOrderId" value="">
+
+        <div class="form-group">
+        <label for="update_customer_name">Customer Name</label>
+<input type="text" name="customer_name" id="updateCustomerName" placeholder="Customer Name" required>
+
+        </div>
+
+        <div class="form-group">
+            <label for="update_employee_id">Employee</label>
+            <select name="employee_id" id="updateEmployeeId" required>
+                <?php
+                // Fetch employees
+                $employeeQuery = "SELECT id, name FROM employees";
+                $employeeResult = $conn->query($employeeQuery);
+                while ($employee = $employeeResult->fetch_assoc()) {
+                    echo "<option value='" . $employee['id'] . "'>" . htmlspecialchars($employee['name']) . "</option>";
+                }
+                ?>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="update_total_amount">Total Amount</label>
+            <input type="number" step="0.01" name="total_amount" id="updateTotalAmount" placeholder="Total Amount" required>
+            
+        </div>
+
+        <div class="form-group">
+            <label>Menu Items</label>
+            <div id="updateOrderItemsContainer">
+                <!-- Existing menu items will be populated here -->
+            </div>
+        </div>
+
+        <button type="button" onclick="addUpdateOrderItem()" class="add-item-btn">Add Another Item</button>
+
+        <div class="form-actions">
+            <button type="submit" name="updateOrder" class="submit-btn">Update Order</button>
+            <button type="button" onclick="hideUpdateOrderForm()" class="cancel-btn">Cancel</button>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    // Function to show update order form and populate with existing data
+    function showUpdateOrderForm(orderId, customerName, employeeId, menuItems) {
+        document.getElementById("updateOrderForm").style.display = "block";
+        document.getElementById("updateOrderId").value = orderId;
+        document.getElementById("updateCustomerName").value = customerName || '';
+        document.getElementById("updateEmployeeId").value = employeeId;
+
+
+        // Clear existing menu items
+        const container = document.getElementById("updateOrderItemsContainer");
+        container.innerHTML = '';
+
+        // Add existing menu items to the form
+        menuItems.forEach((item, index) => {
+            const newItem = document.createElement("div");
+            newItem.className = "order-item";
+            newItem.setAttribute("data-index", index);  // Set data-index for easy removal
+            newItem.innerHTML = `
+                <select name="menu_item_id[]" required>
+                    <option value="">Select Menu Item</option>
+                    ${getMenuItems(item.menu_item_id)}
+                </select>
+                <input type="number" name="quantity[]" min="1" value="${item.quantity}" required>
+                <button type="button" onclick="removeMenuItem(${index})" class="delete-item-btn">Delete</button>
+            `;
+            container.appendChild(newItem);
+        });
+    }
+
+    // Function to remove menu item from the update form
+    function removeMenuItem(index) {
+        const container = document.getElementById("updateOrderItemsContainer");
+        const itemToDelete = container.querySelector(`.order-item[data-index="${index}"]`);
+        if (itemToDelete) {
+            container.removeChild(itemToDelete);
+        }
+    }
+
+    // Function to add an extra menu item field (for adding new items)
+    function addUpdateOrderItem() {
+        const container = document.getElementById("updateOrderItemsContainer");
+        const newItem = document.createElement("div");
+        newItem.className = "order-item";
+        newItem.innerHTML = `
+            <select name="menu_item_id[]" required>
+                <option value="">Select Menu Item</option>
+                ${getMenuItems()}
+            </select>
+            <input type="number" name="quantity[]" min="1" placeholder="Quantity" required>
+            <button type="button" onclick="removeMenuItem()" class="delete-item-btn">Delete</button>
+        `;
+        container.appendChild(newItem);
+    }
+
+    // Function to fetch menu items (existing selection or for new items)
+    function getMenuItems(selectedItemId = null) {
+        var menuItems = '';
+        <?php
+        // Fetch all menu items from database
+        $categoryQuery = "SELECT id, name, category FROM menu_items ORDER BY category";
+        $categoryResult = $conn->query($categoryQuery);
+        $currentCategory = '';
+        while ($item = $categoryResult->fetch_assoc()) {
+            if ($item['category'] !== $currentCategory) {
+                if ($currentCategory !== '') {
+                    echo 'menuItems += "</optgroup>";'; // Close previous optgroup
+                }
+                $currentCategory = $item['category'];
+                echo 'menuItems += "<optgroup label=\'' . htmlspecialchars($currentCategory) . '\'>";';
+            }
+            echo 'menuItems += "<option value=\'' . $item['id'] . '\' ' . ($item['id'] == " + selectedItemId + " ? 'selected' : '') . '>' . htmlspecialchars($item['name']) . '</option>";';
+        }
+        if ($currentCategory !== '') {
+            echo 'menuItems += "</optgroup>";'; // Close the last optgroup
+        }
+        ?>
+        return menuItems;
+    }
+</script>
+
 
         <!-- Orders List in Tabular Form -->
         <div class="orders-list">

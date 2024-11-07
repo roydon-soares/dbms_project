@@ -101,37 +101,90 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['order_
     }
 }
 
+
+
+
+// Ensure the form was submitted with the necessary POST data
+
+// Assuming connection to the database ($conn) is already established
+
 if (isset($_POST['updateOrder'])) {
+    // Retrieve the order ID and other fields from the form submission
     $orderId = $_POST['order_id'];
-    $customerName = $_POST['customer_name'];
+    $customerName = $_POST['customer_name']; // This is the name submitted by the user
     $employeeId = $_POST['employee_id'];
-    $menuItemIds = $_POST['menu_item_id'];
-    $quantities = $_POST['quantity'];
+    $totalAmount = $_POST['total_amount'];
 
-    // Update the order details
-    $updateOrderQuery = "UPDATE orders SET customer_id = ?, employee_id = ? WHERE id = ?";
-    $stmt = $conn->prepare($updateOrderQuery);
-    $stmt->bind_param("iii", $customerId, $employeeId, $orderId);
-    $stmt->execute();
-
-    // Update order items
-    // First, delete old items
-    $deleteItemsQuery = "DELETE FROM order_items WHERE order_id = ?";
-    $stmt = $conn->prepare($deleteItemsQuery);
-    $stmt->bind_param("i", $orderId);
-    $stmt->execute();
-
-    // Insert updated items
-    foreach ($menuItemIds as $index => $menuItemId) {
-        $quantity = $quantities[$index];
-        $insertItemQuery = "INSERT INTO order_items (order_id, menu_item_id, quantity) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($insertItemQuery);
-        $stmt->bind_param("iii", $orderId, $menuItemId, $quantity);
-        $stmt->execute();
+    // Check if menu items and quantities are set, to prevent undefined index warnings
+    if (isset($_POST['menu_item_id']) && isset($_POST['quantity'])) {
+        $menuItems = $_POST['menu_item_id']; // Array of menu items
+        $quantities = $_POST['quantity']; // Array of quantities
+    } else {
+        $menuItems = [];
+        $quantities = [];
     }
 
-    // Redirect to orders page after successful update
-    header("Location: ../pages/orders.php");
-    exit();
+    // Step 1: Update the order (excluding menu items)
+    // First, retrieve the customer_id from the 'customers' table based on the name
+    $getCustomerQuery = "SELECT id FROM customers WHERE name = ?";
+    $stmt = $conn->prepare($getCustomerQuery);
+    $stmt->bind_param("s", $customerName); // Binding customer name to parameter
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $customer = $result->fetch_assoc();
+        $customerId = $customer['id'];
+    } else {
+        echo "Customer not found!";
+        exit();
+    }
+
+    // Update the order table with the new customer_id, employee_id, and total_amount
+    $updateOrderQuery = "UPDATE orders SET customer_id = ?, employee_id = ?, total_amount = ? WHERE id = ?";
+    $stmt = $conn->prepare($updateOrderQuery);
+    $stmt->bind_param('ssdi', $customerId, $employeeId, $totalAmount, $orderId);
+
+    if ($stmt->execute()) {
+        // Step 2: Delete existing order items (this removes any previous menu items)
+        $deleteItemsQuery = "DELETE FROM order_items WHERE order_id = ?";
+        $stmt = $conn->prepare($deleteItemsQuery);
+        $stmt->bind_param('i', $orderId);
+        $stmt->execute();
+
+        // Step 3: Insert the updated menu items and quantities into the order_items table
+        if (count($menuItems) > 0) {
+            $insertItemQuery = "INSERT INTO order_items (order_id, menu_item_id, quantity, price) VALUES (?, ?, ?, ?)";
+            for ($i = 0; $i < count($menuItems); $i++) {
+                $menuItemId = $menuItems[$i];
+                $quantity = $quantities[$i];
+
+                // Fetch the price of the menu item
+                $getMenuItemPriceQuery = "SELECT price FROM menu_items WHERE id = ?";
+                $stmt = $conn->prepare($getMenuItemPriceQuery);
+                $stmt->bind_param('i', $menuItemId);
+                $stmt->execute();
+                $menuItemResult = $stmt->get_result();
+                if ($menuItemResult->num_rows > 0) {
+                    $menuItem = $menuItemResult->fetch_assoc();
+                    $price = $menuItem['price'];
+                } else {
+                    // If menu item not found, skip this item
+                    continue;
+                }
+
+                // Insert each menu item with its quantity and price
+                $stmt = $conn->prepare($insertItemQuery);
+                $stmt->bind_param('iiid', $orderId, $menuItemId, $quantity, $price);
+                $stmt->execute();
+            }
+        }
+
+        // After updating, redirect to the orders list
+        header('Location: ../pages/orders.php?update=success');
+        exit();
+    } else {
+        // If the update query failed
+        echo "Error updating the order: " . $stmt->error;
+    }
 }
 ?>
