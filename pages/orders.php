@@ -177,16 +177,21 @@ $ordersResult = $conn->query($query);
         <!-- Update Order Form (initially hidden) -->
         
         <!-- Update Order Form -->
+<!-- Update Order Form (initially hidden) -->
 <div id="updateOrderForm" class="form-popup" style="display:none;">
     <h2>Update Order</h2>
     <form id="updateOrderFormInner" action="../controllers/orderController.php" method="POST">
         <input type="hidden" name="order_id" id="updateOrderId" value="">
 
         <div class="form-group">
-        <label for="update_customer_name">Customer Name</label>
-<input type="text" name="customer_name" id="updateCustomerName" placeholder="Customer Name" required>
-
+            <label for="update_customer_name">Customer Name</label>
+            <input type="text" name="customer_name" id="updateCustomerName" placeholder="Customer Name" required>
         </div>
+        <div class="form-group">
+    <label for="updateTotalAmount">Total Amount</label>
+    <input type="hidden" name="total_amount" id="updateTotalAmount" value="">
+</div>
+
 
         <div class="form-group">
             <label for="update_employee_id">Employee</label>
@@ -200,12 +205,6 @@ $ordersResult = $conn->query($query);
                 }
                 ?>
             </select>
-        </div>
-
-        <div class="form-group">
-            <label for="update_total_amount">Total Amount</label>
-            <input type="number" step="0.01" name="total_amount" id="updateTotalAmount" placeholder="Total Amount" required>
-            
         </div>
 
         <div class="form-group">
@@ -225,85 +224,119 @@ $ordersResult = $conn->query($query);
 </div>
 
 
+
 <script>
     // Function to show update order form and populate with existing data
-    function showUpdateOrderForm(orderId, customerName, employeeId, menuItems) {
-        document.getElementById("updateOrderForm").style.display = "block";
-        document.getElementById("updateOrderId").value = orderId;
-        document.getElementById("updateCustomerName").value = customerName || '';
-        document.getElementById("updateEmployeeId").value = employeeId;
+   // Function to show the update order form and populate it with existing data
+function showUpdateOrderForm(orderId, customerName, employeeId, menuItems) {
+    document.getElementById("updateOrderForm").style.display = "block";
+    document.getElementById("updateOrderId").value = orderId;
+    document.getElementById("updateCustomerName").value = customerName || '';
+    document.getElementById("updateEmployeeId").value = employeeId;
 
+    // Clear existing menu items
+    const container = document.getElementById("updateOrderItemsContainer");
+    container.innerHTML = '';
 
-        // Clear existing menu items
-        const container = document.getElementById("updateOrderItemsContainer");
-        container.innerHTML = '';
-
-        // Add existing menu items to the form
-        menuItems.forEach((item, index) => {
-            const newItem = document.createElement("div");
-            newItem.className = "order-item";
-            newItem.setAttribute("data-index", index);  // Set data-index for easy removal
-            newItem.innerHTML = `
-                <select name="menu_item_id[]" required>
-                    <option value="">Select Menu Item</option>
-                    ${getMenuItems(item.menu_item_id)}
-                </select>
-                <input type="number" name="quantity[]" min="1" value="${item.quantity}" required>
-                <button type="button" onclick="removeMenuItem(${index})" class="delete-item-btn">Delete</button>
-            `;
-            container.appendChild(newItem);
-        });
-    }
-
-    // Function to remove menu item from the update form
-    function removeMenuItem(index) {
-        const container = document.getElementById("updateOrderItemsContainer");
-        const itemToDelete = container.querySelector(`.order-item[data-index="${index}"]`);
-        if (itemToDelete) {
-            container.removeChild(itemToDelete);
-        }
-    }
-
-    // Function to add an extra menu item field (for adding new items)
-    function addUpdateOrderItem() {
-        const container = document.getElementById("updateOrderItemsContainer");
+    // Add existing menu items to the form
+    menuItems.forEach((item, index) => {
         const newItem = document.createElement("div");
         newItem.className = "order-item";
+        newItem.setAttribute("data-index", index);  // Set data-index for easy removal
         newItem.innerHTML = `
             <select name="menu_item_id[]" required>
                 <option value="">Select Menu Item</option>
-                ${getMenuItems()}
+                ${getMenuItems(item.menu_item_id)}  <!-- Fetch and pre-select menu items -->
             </select>
-            <input type="number" name="quantity[]" min="1" placeholder="Quantity" required>
-            <button type="button" onclick="removeMenuItem()" class="delete-item-btn">Delete</button>
+            <input type="number" name="quantity[]" min="1" value="${item.quantity}" onchange="updateTotalAmount()" required>
+            <button type="button" onclick="removeMenuItem(${index})" class="delete-item-btn">Delete</button>
         `;
         container.appendChild(newItem);
-    }
+    });
 
-    // Function to fetch menu items (existing selection or for new items)
-    function getMenuItems(selectedItemId = null) {
-        var menuItems = '';
-        <?php
-        // Fetch all menu items from database
-        $categoryQuery = "SELECT id, name, category FROM menu_items ORDER BY category";
-        $categoryResult = $conn->query($categoryQuery);
-        $currentCategory = '';
-        while ($item = $categoryResult->fetch_assoc()) {
-            if ($item['category'] !== $currentCategory) {
-                if ($currentCategory !== '') {
-                    echo 'menuItems += "</optgroup>";'; // Close previous optgroup
-                }
-                $currentCategory = $item['category'];
-                echo 'menuItems += "<optgroup label=\'' . htmlspecialchars($currentCategory) . '\'>";';
-            }
-            echo 'menuItems += "<option value=\'' . $item['id'] . '\' ' . ($item['id'] == " + selectedItemId + " ? 'selected' : '') . '>' . htmlspecialchars($item['name']) . '</option>";';
-        }
-        if ($currentCategory !== '') {
-            echo 'menuItems += "</optgroup>";'; // Close the last optgroup
-        }
-        ?>
-        return menuItems;
+    // Recalculate total amount after populating items
+    updateTotalAmount();
+}
+
+// Function to remove a menu item from the update form
+function removeMenuItem(index) {
+    const container = document.getElementById("updateOrderItemsContainer");
+    const itemToDelete = container.querySelector(`.order-item[data-index="${index}"]`);
+    if (itemToDelete) {
+        container.removeChild(itemToDelete);
     }
+    // Update total amount after removing an item
+    updateTotalAmount();
+}
+
+// Function to add a new menu item field
+function addUpdateOrderItem() {
+    const container = document.getElementById("updateOrderItemsContainer");
+    const newItem = document.createElement("div");
+    newItem.className = "order-item";
+    newItem.innerHTML = `
+        <select name="menu_item_id[]" required>
+            <option value="">Select Menu Item</option>
+            ${getMenuItems()} <!-- Fetch menu items dynamically -->
+        </select>
+        <input type="number" name="quantity[]" min="1" placeholder="Quantity" onchange="updateTotalAmount()" required>
+        <button type="button" onclick="removeMenuItem()" class="delete-item-btn">Delete</button>
+    `;
+    container.appendChild(newItem);
+    // Update total amount after adding a new item
+    updateTotalAmount();
+}
+
+// Function to fetch menu items for selection
+function getMenuItems(selectedItemId = null) {
+    var menuItems = '';
+    <?php
+    // Fetch all menu items from the database
+    $categoryQuery = "SELECT id, name, category FROM menu_items ORDER BY category";
+    $categoryResult = $conn->query($categoryQuery);
+    $currentCategory = '';
+    while ($item = $categoryResult->fetch_assoc()) {
+        if ($item['category'] !== $currentCategory) {
+            if ($currentCategory !== '') {
+                echo 'menuItems += "</optgroup>";'; // Close previous optgroup
+            }
+            $currentCategory = $item['category'];
+            echo 'menuItems += "<optgroup label=\'' . htmlspecialchars($currentCategory) . '\'>";';
+        }
+        echo 'menuItems += "<option value=\'' . $item['id'] . '\' ' . ($item['id'] == " + selectedItemId + " ? "selected" : "") . '>' . htmlspecialchars($item['name']) . '</option>";';
+    }
+    if ($currentCategory !== '') {
+        echo 'menuItems += "</optgroup>";'; // Close the last optgroup
+    }
+    ?>
+    return menuItems;
+}
+
+// Function to update the total amount
+function updateTotalAmount() {
+    let totalAmount = 0;
+    const container = document.getElementById("updateOrderItemsContainer");
+    const items = container.getElementsByClassName("order-item");
+
+    Array.from(items).forEach(item => {
+        const select = item.querySelector("select");
+        const quantityInput = item.querySelector("input[name='quantity[]']");
+        const menuItemId = select ? select.value : null;
+        const quantity = quantityInput ? parseInt(quantityInput.value) : 0;
+
+        if (menuItemId && quantity > 0) {
+            // Fetch the price for the selected menu item
+            const price = getMenuItemPrice(menuItemId); // Get price based on the selected item
+            totalAmount += price * quantity;
+        }
+    });
+
+    // Update the total amount field
+    document.getElementById("updateTotalAmount").value = totalAmount.toFixed(2); // Format to 2 decimal places
+}
+
+
+
 </script>
 
 
