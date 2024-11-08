@@ -371,9 +371,14 @@ function updateTotalAmount() {
     
     <!-- Update Order Button -->
    <!-- Update Order Button --> <button onclick="showUpdateOrderForm(<?php echo $order['id']; ?>)">Update</button>
-    
-    <!-- Delete Order Button -->
-    <a href="/orderController.php?action=delete&order_id=<?php echo $order['id']; ?>" class="delete-btn" onclick="return confirm('Are you sure you want to delete this order?')">Delete</a>
+   
+   <!-- Delete Order Button -->
+    <a href="../controllers/orderController.php?action=delete&order_id=<?php echo $order['id']; ?>" 
+    class="delete-btn" 
+    onclick="return confirm('Are you sure you want to delete this order?')">
+    Delete
+    </a>
+
 </td>
 
                             </tr>

@@ -80,52 +80,7 @@ if (isset($_POST['addOrder'])) {
     exit();
 }
 
-if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['order_id'])) {
-    // Get the order ID from the URL
-    $orderId = $_GET['order_id'];
-
-    // Begin a transaction to ensure both deletions are executed properly
-    $conn->begin_transaction();
-
-    try {
-        // Prepare and execute the query to delete order items first (referential integrity)
-        $deleteItemsQuery = "DELETE FROM order_items WHERE order_id = ?";
-        $stmt = $conn->prepare($deleteItemsQuery);
-        $stmt->bind_param("i", $orderId);
-        $stmt->execute();
-
-        // Now, delete the order itself
-        $deleteOrderQuery = "DELETE FROM orders WHERE id = ?";
-        $stmt = $conn->prepare($deleteOrderQuery);
-        $stmt->bind_param("i", $orderId);
-        $stmt->execute();
-
-        // Commit the transaction after successful execution
-        $conn->commit();
-
-        // Return success response (JSON or redirect as needed)
-        header("Location: ..pages/orders.php");  // Redirect to the orders page after successful deletion
-        exit();
-    } catch (Exception $e) {
-        // If there is an error, rollback the transaction
-        $conn->rollback();
-        // Return error response
-        echo "Error deleting order: " . $e->getMessage();
-        exit();
-    }
-} else {
-    // If 'action' or 'order_id' is not set, return an error
-    echo "Invalid request. Missing action or order_id.";
-    exit();
-}
-
-
-
-
-// Ensure the form was submitted with the necessary POST data
-
-// Assuming connection to the database ($conn) is already established
-
+// Handle updating an existing order
 if (isset($_POST['updateOrder'])) {
     // Retrieve the order ID and other fields from the form submission
     $orderId = $_POST['order_id'];
@@ -217,8 +172,25 @@ if (isset($_POST['updateOrder'])) {
     }
 }
 
+// Handle deleting an order
+if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['order_id'])) {
+    $order_id = $_GET['order_id'];
 
+    // Prepare and execute the deletion of order items
+    $deleteOrderItems = "DELETE FROM order_items WHERE order_id = ?";
+    $stmt = $conn->prepare($deleteOrderItems);
+    $stmt->bind_param("i", $order_id);
+    $stmt->execute();
 
+    // Prepare and execute the deletion of the order itself
+    $deleteOrder = "DELETE FROM orders WHERE id = ?";
+    $stmt = $conn->prepare($deleteOrder);
+    $stmt->bind_param("i", $order_id);
+    $stmt->execute();
 
+    // Redirect back to the orders page after deletion
+    header("Location: ../pages/orders.php");
+    exit();
+}
 
 ?>
